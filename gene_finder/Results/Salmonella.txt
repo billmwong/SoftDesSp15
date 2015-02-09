@@ -1,0 +1,11 @@
+Proteins Found:
+
+type II secretion system protein SpaO
+type III secretion system protein SpaS [Salmonella enterica]
+surface presentation of antigens [Salmonella enterica]   OR   ATP synthase SpaL [Salmonella enterica]
+antigen presentation protein SpaN [Salmonella enterica]
+type III secretion system protein SpaR [Salmonella enterica]
+
+
+
+My code works because it found amino acid sequences from Salmonella and not the west african blue bird.  Type III secretion system proteins are used to do horizontal gene transfer by injecting genes into other bacteria cells.  Antigens presentation proteins present antigens on the surface of the cell to identify the cell as not foreign, so that the immune system does not destroy it.
