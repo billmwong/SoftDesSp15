@@ -9,6 +9,8 @@ Usage:
 
 Full instructions are at:
 https://sites.google.com/site/sd15spring/home/project-toolbox/evolutionary-algorithms
+
+@author: Bill Wong
 """
 
 import random
@@ -92,8 +94,23 @@ class Message(list):
 # Genetic operators
 #-----------------------------------------------------------------------------
 
-# TODO: Implement levenshtein_distance function (see Day 9 in-class exercises)
-# HINT: Now would be a great time to implement memoization if you haven't
+def levenshtein_distance(s1,s2, ldict={}):
+    """ Computes the Levenshtein distance between two input strings """
+    if not s1: return len(s2)
+    if not s2: return len(s1)
+
+    if s1[0] == s2[0]:
+        return levenshtein_distance(s1[1:], s2[1:])
+    
+    combos = [(s1[1:],s2[1:]), (s1[1:],s2), (s1,s2[1:])]
+    distlist = []
+    for pair in combos:
+        if pair in ldict:
+            distlist.append(ldict[pair])
+        else:
+            ldict[pair] = levenshtein_distance(pair[0], pair[1], ldict)
+            distlist.append(ldict[pair])
+    return 1 + min(distlist)
 
 def evaluate_text(message, goal_text, verbose=VERBOSE):
     """
@@ -119,15 +136,19 @@ def mutate_text(message, prob_ins=0.05, prob_del=0.05, prob_sub=0.05):
         Substitution:   Replace one character of the Message with a random
                         (legal) character
     """
-
     if random.random() < prob_ins:
-        # TODO: Implement insertion-type mutation
-        pass
+        rchar = random.choice(VALID_CHARS)
+        i = random.randint(0, len(message)-1)
+        message.insert(i, rchar)
 
-    # TODO: Also implement deletion and substitution mutations
-    # HINT: Message objects inherit from list, so they also inherit
-    #       useful list methods
-    # HINT: You probably want to use the VALID_CHARS global variable
+    if random.random() < prob_del:
+        i = random.randint(0, len(message)-1)
+        message.pop(i)
+
+    if random.random() < prob_sub:
+        rchar = random.choice(VALID_CHARS)
+        i = random.randint(0, len(message)-1)
+        message[i] = rchar
 
     return (message, )   # Length 1 tuple, required by DEAP
 
@@ -184,7 +205,7 @@ def evolve_string(text):
     pop, log = algorithms.eaSimple(pop,
                                    toolbox,
                                    cxpb=0.5,    # Prob. of crossover (mating)
-                                   mutpb=0.2,   # Probability of mutation
+                                   mutpb=0.9,   # Probability of mutation
                                    ngen=500,    # Num. of generations to run
                                    stats=stats)
 

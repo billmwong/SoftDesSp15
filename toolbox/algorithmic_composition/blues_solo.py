@@ -1,4 +1,7 @@
-""" Synthesizes a blues solo algorithmically """
+""" Synthesizes a blues solo algorithmically
+
+@author: Bill Wong
+"""
 
 from Nsound import *
 import numpy as np
@@ -31,6 +34,34 @@ solo = AudioStream(sampling_rate, 1)
 blues_scale = [25, 28, 30, 31, 32, 35, 37, 40, 42, 43, 44, 47, 49, 52, 54, 55, 56, 59, 61]
 beats_per_minute = 45				# Let's make a slow blues solo
 
-add_note(solo, bass, blues_scale[0], 1.0, beats_per_minute, 1.0)
+curr_note = 0
+# add_note(solo, bass, blues_scale[curr_note], 1.0, beats_per_minute, 1.0)
 
-solo >> "blues_solo.wav"
+licks = [ [ [6,.5], [0,.5], [0,.15], [-2,.1], [1,.25], [1,.5] ],
+          [ [4,.4], [-4,.1], [3,.4], [-3,.1], [2,.4], [-2,.1], [3,.4], [-3,.1] ],
+          [ [4,.25], [1,.25], [-3,.25], [2,.25], [1,.25], [-2,.25], [1,.25], [1,.25], [-5,1] ],
+          [ [5,.5], [-1,.5], [-1,.27], [-1,.23], [2,.25], [-1,.25] ] ]
+for i in range(8):
+    lick = choice(licks)
+    for note in lick:
+        curr_note += note[0]
+        if curr_note < 0:   # check if current note is out of bounds
+            curr_note = 0
+        elif curr_note >= len(blues_scale):
+            curr_note = len(blues_scale) - 1
+
+        add_note(solo, bass, blues_scale[curr_note], note[1], beats_per_minute, 1.0)
+
+# add backing track:
+backing_track = AudioStream(sampling_rate, 1)
+Wavefile.read('backing.wav', backing_track)
+
+m = Mixer()
+
+solo *= 0.4             # adjust relative volumes to taste
+backing_track *= 2.0
+
+m.add(2.25, 0, solo)    # delay the solo to match up with backing track    
+m.add(0, 0, backing_track)
+
+m.getStream(500.0) >> "slow_blues.wav"
